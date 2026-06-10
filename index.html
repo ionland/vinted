@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mon Dressing Vinted</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600&display=swap');
+:root{--v:#09B3A5;--v2:#078a7e;--vl:#e0f7f5;--ink:#111827;--ink2:#374151;--muted:#9ca3af;--border:#e5e7eb;--bg:#f3f4f6;--white:#fff;--sold-bg:#fef2f2;--sold:#dc2626;--pub-bg:#f0fdf4;--pub:#16a34a;--draft-bg:#fffbeb;--draft:#d97706}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+header{background:var(--ink);padding:16px 20px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100}
+.logo{width:34px;height:34px;background:var(--v);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+header h1{font-family:'Playfair Display',serif;color:var(--white);font-size:1.15rem;font-weight:400}
+.stats-bar{margin-left:auto;display:flex;gap:14px;align-items:center}
+.stat{text-align:center}
+.stat strong{display:block;font-size:1.1rem;color:var(--v);line-height:1}
+.stat span{font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.toolbar{background:var(--white);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{border:none;border-radius:8px;padding:8px 16px;font-family:'Space Grotesk',sans-serif;font-size:.85rem;font-weight:600;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:6px}
+.btn-primary{background:var(--v);color:var(--white)}
+.btn-primary:hover{background:var(--v2)}
+.btn-ghost{background:transparent;color:var(--ink2);border:1px solid var(--border)}
+.btn-ghost:hover{background:var(--bg)}
+.search{flex:1;min-width:140px;border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-family:'Space Grotesk',sans-serif;font-size:.85rem;outline:none}
+.search:focus{border-color:var(--v)}
+.filter-select{border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-family:'Space Grotesk',sans-serif;font-size:.82rem;background:var(--white);cursor:pointer;outline:none;color:var(--ink2)}
+main{padding:16px;max-width:1100px;margin:0 auto}
+#empty{text-align:center;padding:60px 20px;color:var(--muted)}
+#empty .empty-icon{font-size:3rem;margin-bottom:12px}
+#empty h2{font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--ink2);margin-bottom:8px;font-weight:400}
+#empty p{font-size:.88rem;line-height:1.6;max-width:360px;margin:0 auto 20px}
+#empty code{display:block;background:var(--ink);color:#7dd3fc;border-radius:8px;padding:12px 16px;font-size:.75rem;text-align:left;line-height:1.7;max-width:380px;margin:0 auto;white-space:pre-wrap;word-break:break-all}
+#grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.card{background:var(--white);border-radius:14px;border:1px solid var(--border);overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.04);transition:transform .15s,box-shadow .15s;display:flex;flex-direction:column}
+.card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.08)}
+.card-img{width:100%;height:180px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;font-size:2.5rem;color:var(--muted);flex-shrink:0;position:relative;overflow:hidden}
+.card-img img{width:100%;height:100%;object-fit:cover}
+.card-body{padding:14px;flex:1;display:flex;flex-direction:column;gap:8px}
+.card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.card-title{font-weight:600;font-size:.9rem;line-height:1.3;flex:1}
+.card-price{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--v2);white-space:nowrap;flex-shrink:0}
+.card-desc{font-size:.78rem;color:var(--ink2);line-height:1.5;flex:1;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.card-tags{display:flex;flex-wrap:wrap;gap:5px}
+.tag{background:var(--vl);color:var(--v2);border-radius:20px;padding:2px 9px;font-size:.7rem;font-weight:500}
+.card-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+.meta-chip{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:2px 8px;font-size:.7rem;color:var(--ink2)}
+.card-footer{padding:10px 14px;border-top:1px solid var(--border);display:flex;gap:8px;align-items:center}
+.status-badge{border-radius:20px;padding:3px 10px;font-size:.72rem;font-weight:600}
+.status-draft{background:var(--draft-bg);color:var(--draft)}
+.status-published{background:var(--pub-bg);color:var(--pub)}
+.status-sold{background:var(--sold-bg);color:var(--sold)}
+.card-actions{margin-left:auto;display:flex;gap:6px}
+.icon-btn{background:transparent;border:1px solid var(--border);border-radius:6px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.85rem;transition:all .15s}
+.icon-btn:hover{background:var(--vl);border-color:var(--v)}
+.icon-btn.danger:hover{background:var(--sold-bg);border-color:#fecaca}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto}
+.overlay.open{display:flex}
+.modal{background:var(--white);border-radius:16px;width:100%;max-width:560px;margin:auto;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.modal-header{background:var(--ink);padding:16px 20px;display:flex;align-items:center;gap:10px}
+.modal-header h2{color:var(--white);font-size:1rem;font-weight:600;flex:1}
+.modal-close{background:transparent;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;padding:4px}
+.modal-body{padding:20px;display:flex;flex-direction:column;gap:14px}
+.field label{display:block;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:5px}
+.field input,.field textarea,.field select{width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-family:'Space Grotesk',sans-serif;font-size:.88rem;outline:none;color:var(--ink);background:var(--white)}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--v)}
+.field textarea{resize:vertical;min-height:90px}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.modal-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end}
+.import-area{border:2px dashed var(--border);border-radius:10px;padding:16px}
+.import-area textarea{width:100%;border:none;outline:none;resize:vertical;min-height:100px;font-family:monospace;font-size:.78rem;color:var(--ink2);background:transparent}
+.photo-dropzone{border:2px dashed var(--border);border-radius:10px;padding:14px;text-align:center;cursor:pointer;transition:all .15s;background:var(--bg)}
+.photo-dropzone:hover,.photo-dropzone.drag-over{border-color:var(--v);background:var(--vl)}
+.photo-dropzone p{font-size:.82rem;color:var(--muted);margin-bottom:8px}
+.photo-dropzone input{display:none}
+.photos-preview{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.photo-thumb{position:relative;width:72px;height:72px;border-radius:8px;overflow:hidden;border:2px solid var(--border);flex-shrink:0}
+.photo-thumb img{width:100%;height:100%;object-fit:cover}
+.photo-thumb.main-photo{border-color:var(--v)}
+.photo-thumb .ph-remove{position:absolute;top:2px;right:2px;background:rgba(0,0,0,.65);color:#fff;border:none;border-radius:50%;width:18px;height:18px;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.photo-thumb .ph-main-badge{position:absolute;bottom:2px;left:2px;background:var(--v);color:#fff;font-size:.55rem;font-weight:700;padding:1px 5px;border-radius:4px}
+.copy-block{background:var(--ink);border-radius:10px;padding:14px 16px;position:relative}
+.copy-block pre{color:#e2e8f0;font-size:.78rem;line-height:1.7;white-space:pre-wrap;word-break:break-word;font-family:monospace}
+.copy-block-btn{position:absolute;top:8px;right:8px;background:rgba(255,255,255,.1);color:var(--muted);border:none;border-radius:6px;padding:4px 10px;font-size:.72rem;cursor:pointer;font-family:'Space Grotesk',sans-serif}
+.copy-block-btn:hover{background:rgba(9,179,165,.3);color:var(--v)}
+#toast{position:fixed;bottom:24px;right:20px;z-index:999;background:var(--ink);color:var(--white);border-radius:10px;padding:10px 18px;font-size:.85rem;font-weight:500;transform:translateY(20px);opacity:0;transition:all .25s;pointer-events:none}
+#toast.show{transform:translateY(0);opacity:1}
+.total-bar{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px 18px;margin-bottom:16px;display:flex;gap:20px;flex-wrap:wrap;align-items:center}
+.total-item{display:flex;flex-direction:column}
+.total-item strong{font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--ink)}
+.total-item span{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.total-item.highlight strong{color:var(--v2)}
+.prix-neuf-box{display:none;margin-top:8px;font-size:.78rem;background:var(--vl);border:1px solid var(--v);border-radius:8px;padding:8px 12px;line-height:1.6;color:var(--ink2)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">👗</div>
+  <h1>Mon Dressing Vinted</h1>
+  <div class="stats-bar">
+    <div class="stat"><strong id="s-total">0</strong><span>articles</span></div>
+    <div class="stat"><strong id="s-pub">0</strong><span>publiés</span></div>
+    <div class="stat"><strong id="s-sold">0</strong><span>vendus</span></div>
+  </div>
+</header>
+
+<div class="toolbar">
+  <button class="btn btn-primary" onclick="openImport()">＋ Ajouter annonce</button>
+  <input class="search" id="searchInput" placeholder="🔍 Rechercher…" oninput="renderGrid()">
+  <select class="filter-select" id="filterStatus" onchange="renderGrid()">
+    <option value="">Tous les statuts</option>
+    <option value="draft">Brouillon</option>
+    <option value="published">Publié</option>
+    <option value="sold">Vendu</option>
+  </select>
+  <select class="filter-select" id="filterCat" onchange="renderGrid()">
+    <option value="">Toutes catégories</option>
+  </select>
+  <button class="btn btn-ghost" onclick="exportAll()" id="btnExport" style="display:none">⬇ Exporter</button>
+</div>
+
+<main>
+  <div id="totalBar" class="total-bar" style="display:none">
+    <div class="total-item"><strong id="t-count">0</strong><span>annonces</span></div>
+    <div class="total-item highlight"><strong id="t-potential">0 €</strong><span>revenus potentiels</span></div>
+    <div class="total-item"><strong id="t-sold-val">0 €</strong><span>déjà vendus</span></div>
+  </div>
+  <div id="empty">
+    <div class="empty-icon">🛍️</div>
+    <h2>Ton dressing est vide</h2>
+    <p>Envoie tes photos dans le chat Claude, il génère une fiche JSON que tu colles ici.</p>
+    <code>{
+  "titre": "Doudoune Vertbaudet 5 ans",
+  "description": "Doudoune dorée...",
+  "prix": "12",
+  "categorie": "Manteaux enfant",
+  "etat": "Bon état",
+  "marque": "Vertbaudet",
+  "taille": "5 ans / 110 cm",
+  "couleur": "Doré",
+  "matiere": "Polyester",
+  "tags": ["doudoune","enfant","5ans"]
+}</code>
+    <br><br>
+    <button class="btn btn-primary" onclick="openImport()" style="margin:0 auto">＋ Ajouter ma première annonce</button>
+  </div>
+  <div id="grid"></div>
+</main>
+
+<!-- MODAL AJOUT / EDIT -->
+<div class="overlay" id="importOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modalTitle">➕ Nouvelle annonce</h2>
+      <button class="modal-close" onclick="closeImport()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:.82rem;color:var(--muted);line-height:1.6">Colle le JSON généré par Claude, ou remplis le formulaire manuellement.</p>
+      <div class="import-area">
+        <textarea id="jsonInput" placeholder='{"titre":"...","prix":"...","description":"...",...}'></textarea>
+      </div>
+      <button class="btn btn-ghost" onclick="parseJSON()" style="width:100%;justify-content:center">⚡ Remplir depuis le JSON</button>
+      <hr style="border:none;border-top:1px solid var(--border)">
+
+      <div class="field">
+        <label>Titre *</label>
+        <input type="text" id="f-titre" placeholder="Ex: Doudoune Vertbaudet 5 ans camel" onblur="triggerPrixNeuf()">
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Prix Vinted (€) *</label>
+          <input type="number" id="f-prix" placeholder="12">
+        </div>
+        <div class="field">
+          <label>Statut</label>
+          <select id="f-statut">
+            <option value="draft">Brouillon</option>
+            <option value="published">Publié</option>
+            <option value="sold">Vendu</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Prix neuf estimé</label>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="text" id="f-prix-neuf" placeholder="Recherche automatique…" style="flex:1">
+          <span id="prixNeufStatus" style="font-size:.75rem;color:var(--muted);white-space:nowrap;flex-shrink:0"></span>
+        </div>
+        <div class="prix-neuf-box" id="prix-neuf-result"></div>
+      </div>
+
+      <div class="field">
+        <label>Description</label>
+        <textarea id="f-desc" placeholder="Description de l'article…"></textarea>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Catégorie</label>
+          <input type="text" id="f-cat" placeholder="Ex: Manteaux enfant">
+        </div>
+        <div class="field">
+          <label>Marque</label>
+          <input type="text" id="f-marque" placeholder="Ex: Vertbaudet">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Taille</label>
+          <input type="text" id="f-taille" placeholder="Ex: 5 ans / 110 cm">
+        </div>
+        <div class="field">
+          <label>État</label>
+          <select id="f-etat">
+            <option>Neuf avec étiquette</option>
+            <option>Neuf sans étiquette</option>
+            <option>Très bon état</option>
+            <option selected>Bon état</option>
+            <option>Satisfaisant</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Couleur</label>
+          <input type="text" id="f-couleur" placeholder="Ex: Doré">
+        </div>
+        <div class="field">
+          <label>Matière</label>
+          <input type="text" id="f-matiere" placeholder="Ex: Polyester">
+        </div>
+      </div>
+      <div class="field">
+        <label>Tags (séparés par des virgules)</label>
+        <input type="text" id="f-tags" placeholder="doudoune, enfant, 5ans, hiver">
+      </div>
+
+      <div class="field">
+        <label>Photos de l'article</label>
+        <div class="photo-dropzone" id="photoDropzone" onclick="document.getElementById('photoFileInput').click()">
+          <input type="file" id="photoFileInput" multiple accept="image/*" onchange="handlePhotoFiles(this.files)">
+          <p>📷 Appuie pour ajouter des photos depuis ta galerie</p>
+          <button class="btn btn-ghost" type="button" style="font-size:.8rem;pointer-events:none">Choisir des photos</button>
+        </div>
+        <div class="photos-preview" id="photosPreview"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeImport()">Annuler</button>
+      <button class="btn btn-primary" onclick="saveItem()">💾 Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DETAIL -->
+<div class="overlay" id="detailOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="detail-title">Annonce</h2>
+      <button class="modal-close" onclick="closeDetail()">✕</button>
+    </div>
+    <div class="modal-body" id="detail-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeDetail()">Fermer</button>
+      <button class="btn btn-primary" onclick="copyDetailAll()">📋 Tout copier</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const STORE = 'vinted_dashboard_v2';
+let items = JSON.parse(localStorage.getItem(STORE) || '[]');
+let editingId = null;
+let pendingPhotos = [];
+let prixNeufTimer = null;
+
+function save() { localStorage.setItem(STORE, JSON.stringify(items)); }
+
+// ── PRIX NEUF AUTO ────────────────────────────────────────────
+function triggerPrixNeuf() {
+  clearTimeout(prixNeufTimer);
+  prixNeufTimer = setTimeout(searchPrixNeuf, 600);
+}
+
+async function searchPrixNeuf() {
+  const titre = document.getElementById('f-titre').value.trim();
+  const marque = document.getElementById('f-marque').value.trim();
+  const query = [marque, titre].filter(Boolean).join(' ');
+  if (!query || query.length < 4) return;
+  const current = document.getElementById('f-prix-neuf').value.trim();
+  if (current) return;
+
+  const status = document.getElementById('prixNeufStatus');
+  const box = document.getElementById('prix-neuf-result');
+  status.textContent = '⏳ recherche…';
+  box.style.display = 'none';
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+        messages: [{ role: 'user', content: `Recherche le prix de vente neuf actuel de cet article : "${query}". Réponds UNIQUEMENT en JSON valide sans markdown ni backticks : {"prix_neuf":"prix avec devise ex: 39,99 €","source":"nom du site","suggestion_vinted":"prix Vinted recommandé 40-60% du neuf ex: 15 €","note":"courte remarque"}. Si introuvable mets "Non trouvé" dans prix_neuf.` }]
+      })
+    });
+    const data = await res.json();
+    const text = data.content.filter(b => b.type === 'text').map(b => b.text).join('');
+    // Extraire le bloc JSON même s'il est entouré de texte
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('Pas de JSON trouvé dans la réponse');
+    const parsed = JSON.parse(jsonMatch[0]);
+    const found = parsed.prix_neuf && parsed.prix_neuf !== 'Non trouvé';
+    document.getElementById('f-prix-neuf').value = found ? parsed.prix_neuf : '';
+    status.textContent = found ? '✓ trouvé' : '— non trouvé';
+    if (found) {
+      box.innerHTML = `<strong>🏷️ Neuf :</strong> ${parsed.prix_neuf} <span style="color:var(--muted)">(${parsed.source||''})</span><br><strong>💡 Vinted suggéré :</strong> <span style="color:var(--v2);font-weight:600">${parsed.suggestion_vinted||'—'}</span><br><span style="color:var(--muted)">${parsed.note||''}</span>`;
+      box.style.display = 'block';
+      if (!document.getElementById('f-prix').value && parsed.suggestion_vinted) {
+        const m = parsed.suggestion_vinted.match(/(\d+)/);
+        if (m) document.getElementById('f-prix').value = m[1];
+      }
+    }
+  } catch(e) {
+    status.textContent = '— erreur';
+    box.innerHTML = `❌ <strong>Détail :</strong> ${e.message || e}`;
+    box.style.display = 'block';
+  }
+}
+
+// ── PHOTOS ────────────────────────────────────────────────────
+function handlePhotoFiles(files) {
+  if (!files || !files.length) return;
+  const toProcess = [...files].slice(0, 5 - pendingPhotos.length);
+  if (!toProcess.length) { showToast('⚠️ Maximum 5 photos'); return; }
+  Promise.all(toProcess.map(f => compressImage(f, 800, 0.75))).then(results => {
+    pendingPhotos = [...pendingPhotos, ...results];
+    renderPhotoPreviews();
+    document.getElementById('photoFileInput').value = '';
+  });
+}
+
+function compressImage(file, maxSize, quality) {
+  return new Promise(resolve => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      let w = img.width, h = img.height;
+      if (w > maxSize || h > maxSize) {
+        if (w > h) { h = Math.round(h * maxSize / w); w = maxSize; }
+        else { w = Math.round(w * maxSize / h); h = maxSize; }
+      }
+      const c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      c.getContext('2d').drawImage(img, 0, 0, w, h);
+      URL.revokeObjectURL(url);
+      resolve(c.toDataURL('image/jpeg', quality));
+    };
+    img.src = url;
+  });
+}
+
+function renderPhotoPreviews() {
+  const c = document.getElementById('photosPreview');
+  if (!c) return;
+  c.innerHTML = pendingPhotos.map((src, i) => `
+    <div class="photo-thumb ${i===0?'main-photo':''}">
+      <img src="${src}">
+      ${i===0?'<span class="ph-main-badge">principale</span>':''}
+      <button class="ph-remove" onclick="removePhoto(${i})">✕</button>
+    </div>`).join('');
+  if (pendingPhotos.length) c.innerHTML += `<div style="font-size:.7rem;color:var(--muted);align-self:center;margin-left:4px">${pendingPhotos.length}/5 photo${pendingPhotos.length>1?'s':''}<br><span style="font-size:.65rem">1ère = principale</span></div>`;
+}
+
+function removePhoto(idx) { pendingPhotos.splice(idx, 1); renderPhotoPreviews(); }
+
+document.addEventListener('DOMContentLoaded', () => {
+  const dz = document.getElementById('photoDropzone');
+  if (!dz) return;
+  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+  dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('drag-over'); handlePhotoFiles([...e.dataTransfer.files].filter(f=>f.type.startsWith('image/'))); });
+});
+
+// ── FORMULAIRE ────────────────────────────────────────────────
+function clearForm() {
+  ['titre','prix','prix-neuf','desc','cat','marque','taille','couleur','matiere','tags'].forEach(k => {
+    const el = document.getElementById('f-'+k); if (el) el.value = '';
+  });
+  document.getElementById('f-statut').value = 'draft';
+  document.getElementById('f-etat').value = 'Bon état';
+  document.getElementById('jsonInput').value = '';
+  document.getElementById('prixNeufStatus').textContent = '';
+  document.getElementById('prix-neuf-result').style.display = 'none';
+  pendingPhotos = [];
+  renderPhotoPreviews();
+}
+
+function fillForm(it) {
+  document.getElementById('f-titre').value = it.titre||'';
+  document.getElementById('f-prix').value = it.prix||'';
+  document.getElementById('f-desc').value = it.description||'';
+  document.getElementById('f-cat').value = it.categorie||'';
+  document.getElementById('f-marque').value = it.marque||'';
+  document.getElementById('f-taille').value = it.taille||'';
+  document.getElementById('f-couleur').value = it.couleur||'';
+  document.getElementById('f-matiere').value = it.matiere||'';
+  document.getElementById('f-tags').value = (it.tags||[]).join(', ');
+  document.getElementById('f-prix-neuf').value = it.prix_neuf||'';
+  document.getElementById('f-statut').value = it.statut||'draft';
+  document.getElementById('f-etat').value = it.etat||'Bon état';
+  document.getElementById('jsonInput').value = '';
+  document.getElementById('prixNeufStatus').textContent = '';
+  document.getElementById('prix-neuf-result').style.display = 'none';
+  pendingPhotos = it.photos ? [...it.photos] : (it.img ? [it.img] : []);
+  renderPhotoPreviews();
+  if (!it.prix_neuf) searchPrixNeuf();
+}
+
+function parseJSON() {
+  const raw = document.getElementById('jsonInput').value.trim();
+  if (!raw) return;
+  try {
+    const d = JSON.parse(raw.replace(/```json|```/g,'').trim());
+    document.getElementById('f-titre').value = d.titre||'';
+    document.getElementById('f-prix').value = d.prix||'';
+    document.getElementById('f-desc').value = d.description||'';
+    document.getElementById('f-cat').value = d.categorie||'';
+    document.getElementById('f-marque').value = d.marque||'';
+    document.getElementById('f-taille').value = d.taille||'';
+    document.getElementById('f-couleur').value = d.couleur||'';
+    document.getElementById('f-matiere').value = d.matiere||'';
+    document.getElementById('f-tags').value = Array.isArray(d.tags) ? d.tags.join(', ') : (d.tags||'');
+    if (d.etat) document.getElementById('f-etat').value = d.etat;
+    document.getElementById('f-prix-neuf').value = '';
+    showToast('✓ Formulaire rempli !');
+    searchPrixNeuf();
+  } catch(e) { showToast('❌ JSON invalide'); }
+}
+
+function saveItem() {
+  const titre = document.getElementById('f-titre').value.trim();
+  if (!titre) { showToast('⚠️ Le titre est requis'); return; }
+  const tags = document.getElementById('f-tags').value.split(',').map(t=>t.trim()).filter(Boolean);
+  const data = {
+    titre,
+    prix: document.getElementById('f-prix').value.trim(),
+    description: document.getElementById('f-desc').value.trim(),
+    categorie: document.getElementById('f-cat').value.trim(),
+    marque: document.getElementById('f-marque').value.trim(),
+    taille: document.getElementById('f-taille').value.trim(),
+    couleur: document.getElementById('f-couleur').value.trim(),
+    matiere: document.getElementById('f-matiere').value.trim(),
+    etat: document.getElementById('f-etat').value,
+    statut: document.getElementById('f-statut').value,
+    prix_neuf: document.getElementById('f-prix-neuf').value.trim(),
+    tags,
+    photos: [...pendingPhotos],
+    img: pendingPhotos[0] || null
+  };
+  if (editingId) {
+    const idx = items.findIndex(x=>x.id===editingId);
+    if (idx >= 0) items[idx] = { ...items[idx], ...data };
+  } else {
+    data.id = 'v_' + Date.now();
+    data.createdAt = new Date().toISOString();
+    items.unshift(data);
+  }
+  save(); closeImport(); renderGrid();
+  showToast(editingId ? '✓ Annonce modifiée' : '✓ Annonce ajoutée');
+}
+
+// ── MODAL OPEN/CLOSE ──────────────────────────────────────────
+function openImport() {
+  editingId = null; clearForm();
+  document.getElementById('modalTitle').textContent = '➕ Nouvelle annonce';
+  document.getElementById('importOverlay').classList.add('open');
+}
+function openEdit(id) {
+  const it = items.find(x=>x.id===id); if (!it) return;
+  editingId = id; fillForm(it);
+  document.getElementById('modalTitle').textContent = '✏️ Modifier l\'annonce';
+  document.getElementById('importOverlay').classList.add('open');
+}
+function closeImport() { document.getElementById('importOverlay').classList.remove('open'); editingId = null; }
+
+// ── DETAIL ────────────────────────────────────────────────────
+let currentDetailId = null;
+
+function openDetail(id) {
+  const it = items.find(x=>x.id===id); if (!it) return;
+  currentDetailId = id;
+  document.getElementById('detail-title').textContent = it.titre;
+  const photos = it.photos || (it.img ? [it.img] : []);
+  const gallery = photos.length ? `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">${photos.map((p,i)=>`<img src="${p}" style="width:${photos.length===1?'100%':'80px'};height:${photos.length===1?'200px':'80px'};object-fit:cover;border-radius:8px;border:${i===0?'2px solid var(--v)':'1px solid var(--border)'};cursor:pointer" onclick="this.parentElement.querySelectorAll('img').forEach(x=>x.style.border='1px solid var(--border)');this.style.border='2px solid var(--v)';">`).join('')}</div>` : '';
+  document.getElementById('detail-body').innerHTML = `${gallery}
+    <div class="copy-block"><pre id="detail-text">${buildText(it)}</pre><button class="copy-block-btn" onclick="copyDetailAll()">Copier</button></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">
+      <button class="btn btn-ghost" style="font-size:.8rem" onclick="changeStatus('${id}','published')">✅ Marquer publié</button>
+      <button class="btn btn-ghost" style="font-size:.8rem" onclick="changeStatus('${id}','sold')">💰 Marquer vendu</button>
+    </div>`;
+  document.getElementById('detailOverlay').classList.add('open');
+}
+function closeDetail() { document.getElementById('detailOverlay').classList.remove('open'); currentDetailId = null; }
+
+function buildText(it) {
+  return `🏷️ TITRE : ${it.titre}\n\n💶 PRIX : ${it.prix} €${it.prix_neuf ? ` (neuf : ${it.prix_neuf})` : ''}\n\n📝 DESCRIPTION :\n${it.description||''}\n\n📋 CRITÈRES :\n• Catégorie : ${it.categorie||'—'}\n• État : ${it.etat||'—'}\n• Marque : ${it.marque||'—'}\n• Taille : ${it.taille||'—'}\n• Couleur : ${it.couleur||'—'}\n• Matière : ${it.matiere||'—'}\n\n🔖 TAGS : ${(it.tags||[]).map(t=>'#'+t).join(' ')}`;
+}
+
+function copyDetailAll() {
+  navigator.clipboard.writeText(document.getElementById('detail-text').textContent).then(()=>showToast('📋 Copié !'));
+}
+function changeStatus(id, s) {
+  const it = items.find(x=>x.id===id);
+  if (it) { it.statut = s; save(); renderGrid(); closeDetail(); showToast('✓ Statut mis à jour'); }
+}
+
+// ── GRID ──────────────────────────────────────────────────────
+function renderGrid() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const fs = document.getElementById('filterStatus').value;
+  const fc = document.getElementById('filterCat').value;
+  const list = items.filter(it => {
+    const mq = !q || it.titre.toLowerCase().includes(q) || (it.description||'').toLowerCase().includes(q) || (it.marque||'').toLowerCase().includes(q);
+    return mq && (!fs || it.statut===fs) && (!fc || it.categorie===fc);
+  });
+  const grid = document.getElementById('grid');
+  const empty = document.getElementById('empty');
+  const bar = document.getElementById('totalBar');
+  const exp = document.getElementById('btnExport');
+  if (!items.length) { grid.innerHTML=''; empty.style.display='block'; bar.style.display='none'; exp.style.display='none'; updateStats(); return; }
+  empty.style.display = 'none'; bar.style.display = 'flex'; exp.style.display = 'flex';
+  const pot = items.filter(i=>i.statut!=='sold').reduce((s,i)=>s+parseFloat(i.prix||0),0);
+  const sold = items.filter(i=>i.statut==='sold').reduce((s,i)=>s+parseFloat(i.prix||0),0);
+  document.getElementById('t-count').textContent = list.length;
+  document.getElementById('t-potential').textContent = pot.toFixed(0)+' €';
+  document.getElementById('t-sold-val').textContent = sold.toFixed(0)+' €';
+  updateStats(); updateCatFilter();
+  grid.innerHTML = list.map(cardHTML).join('');
+}
+
+function cardHTML(it) {
+  const sm = {draft:'Brouillon',published:'Publié',sold:'Vendu'};
+  const tags = (it.tags||[]).slice(0,4).map(t=>`<span class="tag">#${esc(t)}</span>`).join('');
+  const meta = [it.etat,it.taille,it.marque].filter(Boolean).map(m=>`<span class="meta-chip">${esc(m)}</span>`).join('');
+  const photos = it.photos||(it.img?[it.img]:[]);
+  const img = photos[0] ? `<img src="${photos[0]}" style="width:100%;height:100%;object-fit:cover">${photos.length>1?`<span style="position:absolute;bottom:6px;right:8px;background:rgba(0,0,0,.55);color:#fff;font-size:.65rem;font-weight:600;padding:2px 7px;border-radius:20px">📷 ${photos.length}</span>`:''}` : '👗';
+  return `<div class="card">
+    <div class="card-img">${img}</div>
+    <div class="card-body">
+      <div class="card-top">
+        <div class="card-title">${esc(it.titre)}</div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0">
+          <div class="card-price">${parseFloat(it.prix||0).toFixed(0)} €</div>
+          ${it.prix_neuf?`<div style="font-size:.68rem;color:var(--muted);text-decoration:line-through">neuf : ${esc(it.prix_neuf)}</div>`:''}
+        </div>
+      </div>
+      <div class="card-desc">${esc(it.description||'')}</div>
+      <div class="card-meta">${meta}</div>
+      <div class="card-tags">${tags}</div>
+    </div>
+    <div class="card-footer">
+      <span class="status-badge status-${it.statut}">${sm[it.statut]||'Brouillon'}</span>
+      <div class="card-actions">
+        <button class="icon-btn" onclick="openDetail('${it.id}')" title="Voir">📋</button>
+        <button class="icon-btn" onclick="openEdit('${it.id}')" title="Modifier">✏️</button>
+        <button class="icon-btn danger" onclick="deleteItem('${it.id}')" title="Supprimer">🗑</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function updateStats() {
+  document.getElementById('s-total').textContent = items.length;
+  document.getElementById('s-pub').textContent = items.filter(i=>i.statut==='published').length;
+  document.getElementById('s-sold').textContent = items.filter(i=>i.statut==='sold').length;
+}
+function updateCatFilter() {
+  const sel = document.getElementById('filterCat');
+  const cur = sel.value;
+  const cats = [...new Set(items.map(i=>i.categorie).filter(Boolean))].sort();
+  sel.innerHTML = '<option value="">Toutes catégories</option>' + cats.map(c=>`<option value="${esc(c)}"${c===cur?' selected':''}>${esc(c)}</option>`).join('');
+}
+
+function deleteItem(id) {
+  if (!confirm('Supprimer cette annonce ?')) return;
+  items = items.filter(x=>x.id!==id); save(); renderGrid(); showToast('🗑 Supprimé');
+}
+function exportAll() {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(items,null,2)],{type:'application/json'}));
+  a.download = 'vinted-annonces.json'; a.click();
+}
+
+// ── HELPERS ───────────────────────────────────────────────────
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2500);
+}
+document.getElementById('importOverlay').addEventListener('click', e => { if (e.target===e.currentTarget) closeImport(); });
+document.getElementById('detailOverlay').addEventListener('click', e => { if (e.target===e.currentTarget) closeDetail(); });
+
+// Init avec démo si vide
+if (!items.length) {
+  items = [{
+    id:'v_demo', titre:'Doudoune dorée Vertbaudet capuche fourrure 5 ans 110 cm',
+    prix:'12', prix_neuf:'39,99 €',
+    description:"Doudoune enfant Vertbaudet taille 5 ans (110 cm), coloris doré/champagne avec reflets satinés très tendance. Capuche amovible ornée d'un large col en fausse fourrure beige. Fermeture double système : zip central + pressions dorées. Doublure intérieure polaire ultra-douce. Idéale pour l'automne et l'hiver.",
+    categorie:'Manteaux enfant', etat:'Bon état', marque:'Vertbaudet',
+    taille:'5 ans / 110 cm', couleur:'Doré / Champagne', matiere:'Polyester',
+    statut:'draft', tags:['doudoune','vertbaudet','enfant','5ans','capuchefourrure'],
+    photos:[], img:null, createdAt:new Date().toISOString()
+  }];
+  save();
+}
+renderGrid();
+</script>
+</body>
+</html>
